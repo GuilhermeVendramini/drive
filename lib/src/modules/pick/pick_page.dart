@@ -1,73 +1,16 @@
-import 'package:background_location/background_location.dart';
-import 'package:drive/src/repositories/google_map_polyline/google_map_polyline_repository.dart';
+import 'package:drive/src/modules/pick/pick_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 
+/*
 class PickPage extends StatefulWidget {
   @override
   _PickPageState createState() => _PickPageState();
 }
 
 class _PickPageState extends State<PickPage> {
-
-  GoogleMapPolylineRepository _googleMapPolylineRepository = GoogleMapPolylineRepository();
-
-  //Get Current location
-  String latitude = "waiting...";
-  String longitude = "waiting...";
-  String altitude = "waiting...";
-  String accuracy = "waiting...";
-  String bearing = "waiting...";
-  String speed = "waiting...";
-
-  static double lat = -21.7263055;
-  static double long = -51.0134177;
-
-  @override
-  void initState() {
-    super.initState();
-
-    BackgroundLocation.startLocationService();
-    BackgroundLocation.getLocationUpdates((location) {
-      setState(() {
-        lat = location.latitude;
-        long = location.longitude;
-
-        this.latitude = location.latitude.toString();
-        this.longitude = location.longitude.toString();
-        this.accuracy = location.accuracy.toString();
-        this.altitude = location.altitude.toString();
-        this.bearing = location.bearing.toString();
-        this.speed = location.speed.toString();
-      });
-
-      print("""\n
-      Latitude:  $latitude
-      Longitude: $longitude
-      Altitude: $altitude
-      Accuracy: $accuracy
-      Bearing:  $bearing
-      Speed: $speed
-      """);
-    });
-  }
-
-  Widget locationData(String data) {
-    return Text(
-      data,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 18,
-      ),
-      textAlign: TextAlign.center,
-    );
-  }
-
-  getCurrentLocation() async {
-    BackgroundLocation().getCurrentLocation().then((location) {
-      print("This is current Location" + location.longitude.toString());
-    });
-  }
 
   LatLng _mapInitLocation = LatLng(-21.7263055, -51.0134177);
 
@@ -154,5 +97,60 @@ class _PickPageState extends State<PickPage> {
   void dispose() {
     BackgroundLocation.stopLocationService();
     super.dispose();
+  }
+}
+*/
+
+class PickPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final _controller = Provider.of<PickController>(context);
+
+    return MaterialApp(
+      darkTheme: ThemeData(brightness: Brightness.dark),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Map Polyline'),
+        ),
+        body: Container(
+          child: Observer(
+            builder: (_) {
+              if (_controller.initialLocation == null) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                return Stack(
+                  children: <Widget>[
+                    GoogleMap(
+                      polylines: _controller.polylines != null
+                          ? Set<Polyline>.of(_controller.polylines)
+                          : null,
+                      initialCameraPosition: CameraPosition(
+                        target: _controller.initialLocation,
+                        zoom: 15,
+                      ),
+                    ),
+                    _controller.polylineStatus == PolylineStatus.LOADING
+                        ? Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : Container(),
+                  ],
+                );
+              }
+            },
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.map),
+          onPressed: () {
+            _controller.setPolylinesWithLocation(
+              destination: LatLng(-21.718700, -51.026070),
+            );
+          },
+        ),
+      ),
+    );
   }
 }

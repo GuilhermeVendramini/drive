@@ -9,7 +9,10 @@ class PickModule extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<PickController>(create: (_) => PickController()),
+        Provider<PickController>(
+          create: (_) => PickController(),
+          dispose: (_, PickController value) => value?.dispose(),
+        ),
       ],
       child: PickPage(),
     );
