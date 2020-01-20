@@ -1,6 +1,6 @@
 import 'package:background_location/background_location.dart';
+import 'package:drive/src/repositories/google_map_polyline/google_map_polyline_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:google_map_polyline/google_map_polyline.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PickPage extends StatefulWidget {
@@ -9,6 +9,8 @@ class PickPage extends StatefulWidget {
 }
 
 class _PickPageState extends State<PickPage> {
+
+  GoogleMapPolylineRepository _googleMapPolylineRepository = GoogleMapPolylineRepository();
 
   //Get Current location
   String latitude = "waiting...";
@@ -67,74 +69,11 @@ class _PickPageState extends State<PickPage> {
     });
   }
 
-  GoogleMapPolyline _googleMapPolyline =
-  GoogleMapPolyline(apiKey: '<API-KEY>');
-
   LatLng _mapInitLocation = LatLng(-21.7263055, -51.0134177);
 
-  Map<PolylineId, Polyline> _polyLines = <PolylineId, Polyline>{};
-
-  int _polyLineCount = 1;
 
   LatLng _originLocation = LatLng(lat, long);
   LatLng _destinationLocation = LatLng(-21.718700, -51.026070);
-
-  //Get polyline with Location (latitude and longitude)
-  _getPolyLinesWithLocation() async {
-    List<LatLng> _coordinates =
-    await _googleMapPolyline.getCoordinatesWithLocation(
-        origin: _originLocation,
-        destination: _destinationLocation,
-        mode: RouteMode.driving);
-
-    setState(() {
-      _polyLines.clear();
-    });
-    _addPolyline(_coordinates);
-  }
-
-  //Get polyline with Address
-  _getPolyLinesWithAddress() async {
-    List<LatLng> _coordinates =
-    await _googleMapPolyline.getPolylineCoordinatesWithAddress(
-        origin: '55 Kingston Ave, Brooklyn, NY 11213, USA',
-        destination: '8007 Cypress Ave, Glendale, NY 11385, USA',
-        mode: RouteMode.driving);
-
-    setState(() {
-      _polyLines.clear();
-    });
-    _addPolyline(_coordinates);
-  }
-
-  //Polyline patterns
-  List<List<PatternItem>> _patterns = <List<PatternItem>>[
-    <PatternItem>[],
-    <PatternItem>[PatternItem.dash(30.0), PatternItem.gap(20.0)],
-    <PatternItem>[PatternItem.dot, PatternItem.gap(10.0)],
-    <PatternItem>[
-      PatternItem.dash(30.0),
-      PatternItem.gap(20.0),
-      PatternItem.dot,
-      PatternItem.gap(20.0)
-    ],
-  ];
-
-  _addPolyline(List<LatLng> _coordinates) {
-    PolylineId id = PolylineId("poly$_polyLineCount");
-    Polyline polyline = Polyline(
-        polylineId: id,
-        patterns: _patterns[0],
-        color: Colors.blueAccent,
-        points: _coordinates,
-        width: 10,
-        onTap: () {});
-
-    setState(() {
-      _polyLines[id] = polyline;
-      _polyLineCount++;
-    });
-  }
 
   Set<Marker> _createMarker() {
     return <Marker>[
@@ -160,7 +99,7 @@ class _PickPageState extends State<PickPage> {
           body: Stack(
             children: <Widget>[
               GoogleMap(
-                polylines: Set<Polyline>.of(_polyLines.values),
+                polylines: Set<Polyline>.of(_googleMapPolylineRepository.getPolylines.values),
                 markers: _createMarker(),
                 initialCameraPosition: CameraPosition(
                   target: _mapInitLocation,
@@ -200,7 +139,12 @@ class _PickPageState extends State<PickPage> {
           ),
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.map),
-            onPressed: _getPolyLinesWithLocation,
+            onPressed: () {
+              _googleMapPolylineRepository.setPolylinesWithLocation(
+                origin: _originLocation,
+                destination: _destinationLocation,
+              );
+            },
           ),
       ),
     );

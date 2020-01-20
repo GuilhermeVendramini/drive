@@ -38,3 +38,4 @@ lib/generated_plugin_registrant.dart
 
 # Android
 /android/app/src/main/AndroidManifest.xml
+/lib/src/repositories/google_map_polyline/google_map_key.dart
