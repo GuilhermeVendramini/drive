@@ -1,4 +1,5 @@
 import 'package:drive/src/modules/pick/pick_controller.dart';
+import 'package:drive/src/modules/pick/widgets/pick_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -102,55 +103,55 @@ class _PickPageState extends State<PickPage> {
 */
 
 class PickPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     final _controller = Provider.of<PickController>(context);
 
-    return MaterialApp(
-      darkTheme: ThemeData(brightness: Brightness.dark),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Map Polyline'),
-        ),
-        body: Container(
-          child: Observer(
-            builder: (_) {
-              if (_controller.initialLocation == null) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                return Stack(
-                  children: <Widget>[
-                    GoogleMap(
-                      polylines: _controller.polylines != null
-                          ? Set<Polyline>.of(_controller.polylines)
-                          : null,
-                      initialCameraPosition: CameraPosition(
-                        target: _controller.initialLocation,
-                        zoom: 15,
-                      ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Drive'),
+        centerTitle: true,
+      ),
+      body: Container(
+        child: Observer(
+          builder: (_) {
+            if (_controller.initialLocation == null) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return Stack(
+                children: <Widget>[
+                  GoogleMap(
+                    polylines: _controller.polylines != null
+                        ? Set<Polyline>.of(_controller.polylines)
+                        : null,
+                    initialCameraPosition: CameraPosition(
+                      target: _controller.initialLocation,
+                      zoom: 15,
                     ),
-                    _controller.polylineStatus == PolylineStatus.LOADING
-                        ? Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : Container(),
-                  ],
-                );
-              }
-            },
-          ),
+                  ),
+                  _controller.polylineStatus == PolylineStatus.LOADING
+                      ? Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : Container(),
+                ],
+              );
+            }
+          },
         ),
-        floatingActionButton: FloatingActionButton(
+      ),
+      floatingActionButton: PickBottomSheet(),
+/*        floatingActionButton: FloatingActionButton(
           child: Icon(Icons.map),
           onPressed: () {
             _controller.setPolylinesWithLocation(
               destination: LatLng(-21.718700, -51.026070),
             );
           },
-        ),
-      ),
+        ),*/
     );
   }
 }

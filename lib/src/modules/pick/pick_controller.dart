@@ -44,8 +44,6 @@ abstract class _PickController with Store {
         initialLocation = LatLng(_currentLatitude, _currentLongitude);
         print(initialLocation);
       }
-
-      setPolylinesWithLocation(destination: LatLng(-21.718700, -51.026070)); // Test update line
     });
   }
 
