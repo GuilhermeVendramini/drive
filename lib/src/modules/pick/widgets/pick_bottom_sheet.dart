@@ -1,3 +1,4 @@
+import 'package:drive/src/modules/pick/widgets/pick_origin_destination.dart';
 import 'package:flutter/material.dart';
 
 class PickBottomSheet extends StatefulWidget {
@@ -16,10 +17,7 @@ class _PickBottomSheetState extends State<PickBottomSheet> {
             onPressed: () {
               var bottomSheetController = showBottomSheet(
                   context: context,
-                  builder: (context) => Container(
-                        color: Colors.blueGrey,
-                        height: 250,
-                      ));
+                  builder: (context) => PickOriginDestination());
               _showFloatingActionButton(false);
               bottomSheetController.closed.then((value) {
                 _showFloatingActionButton(true);

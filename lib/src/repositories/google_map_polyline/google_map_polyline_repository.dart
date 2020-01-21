@@ -1,8 +1,7 @@
+import 'package:drive/src/repositories/google_maps/google_maps_key.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_map_polyline/google_map_polyline.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-import 'google_map_key.dart';
 
 class GoogleMapPolylineRepository {
   GoogleMapPolyline _googleMapPolyline =

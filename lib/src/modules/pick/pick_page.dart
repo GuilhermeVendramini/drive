@@ -144,14 +144,6 @@ class PickPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: PickBottomSheet(),
-/*        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.map),
-          onPressed: () {
-            _controller.setPolylinesWithLocation(
-              destination: LatLng(-21.718700, -51.026070),
-            );
-          },
-        ),*/
     );
   }
 }
