@@ -8,11 +8,11 @@ class PickButtonsBox extends StatefulWidget {
 }
 
 class _PickButtonsBoxState extends State<PickButtonsBox> {
-  bool _showButton = true;
+  bool _showButtons = true;
 
   @override
   Widget build(BuildContext context) {
-    return _showButton
+    return _showButtons
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -31,7 +31,7 @@ class _PickButtonsBoxState extends State<PickButtonsBox> {
 
   void _showFloatingActionButton(bool value) {
     setState(() {
-      _showButton = value;
+      _showButtons = value;
     });
   }
 }
