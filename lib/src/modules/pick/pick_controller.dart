@@ -1,7 +1,9 @@
-//import 'package:background_location/background_location.dart';
+import 'dart:async';
+
 import 'package:drive/src/repositories/google_map_polyline/google_map_polyline_repository.dart';
 import 'package:drive/src/repositories/google_maps/google_maps_key.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -15,8 +17,6 @@ class PickController = _PickController with _$PickController;
 
 abstract class _PickController with Store {
   _PickController() {
-    //BackgroundLocation.startLocationService();
-    //startLocationUpdates();
     setCurrentPosition();
   }
 
@@ -24,10 +24,6 @@ abstract class _PickController with Store {
       GoogleMapPolylineRepository();
 
   GoogleMapsPlaces _googleMapsPlaces = GoogleMapsPlaces(apiKey: googleMapKey);
-
-  //double _currentLatitude = 0.0;
-
-  //double _currentLongitude = 0.0;
 
   @observable
   LatLng initialLocation;
@@ -48,7 +44,42 @@ abstract class _PickController with Store {
   Position currentPosition;
 
   @observable
+  Position destinationPosition;
+
+  @observable
   PlacesDetailsResponse placesDetails;
+
+  Geolocator geolocator = Geolocator();
+
+  StreamSubscription<Position> positionStream;
+
+  @computed
+  bool get hasOriginAndDestination =>
+      originAddress.isNotEmpty && destinationAddress.isNotEmpty;
+
+  @action
+  startCurrentLocationUpdates() async {
+    await setDestinationPosition();
+    var locationOptions =
+        LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
+
+    if (destinationPosition != null) {
+      positionStream = geolocator
+          .getPositionStream(locationOptions)
+          .listen((Position position) {
+        if (position != null) {
+          currentPosition = position;
+          print(position);
+          setPolylinesCurrentToDestination(
+            color: Color(0xFF000000),
+            currentLocation: LatLng(position.latitude, position.longitude),
+            destination: LatLng(
+                destinationPosition.latitude, destinationPosition.longitude),
+          );
+        }
+      });
+    }
+  }
 
   @action
   setDetailsByPlaceId(String placeId) async {
@@ -56,7 +87,9 @@ abstract class _PickController with Store {
   }
 
   String get getPlaceFormattedAddress {
-    if(placesDetails.result != null && placesDetails.result.formattedAddress.isNotEmpty) {
+    if (placesDetails != null &&
+        placesDetails.result != null &&
+        placesDetails.result.formattedAddress.isNotEmpty) {
       return placesDetails.result.formattedAddress;
     }
     return '';
@@ -64,20 +97,20 @@ abstract class _PickController with Store {
 
   @action
   setCurrentPosition() async {
-    currentPosition = await Geolocator().getCurrentPosition(
+    currentPosition = await geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
 
     if (initialLocation == null) {
       initialLocation =
           LatLng(currentPosition.latitude, currentPosition.longitude);
-      setAddressByLocation();
+      setAddressByCurrentLocation();
     }
   }
 
   @action
-  setAddressByLocation() async {
-    List<Placemark> placeMarkList = await Geolocator().placemarkFromCoordinates(
+  setAddressByCurrentLocation() async {
+    List<Placemark> placeMarkList = await geolocator.placemarkFromCoordinates(
         initialLocation.latitude, initialLocation.longitude);
 
     if (placeMarkList.length > 0) {
@@ -97,28 +130,32 @@ abstract class _PickController with Store {
     destinationAddress = destination;
   }
 
-/*  @action
-  startLocationUpdates() {
-    BackgroundLocation.getLocationUpdates((location) {
-      _currentLatitude = location.latitude;
-      _currentLongitude = location.longitude;
+  @action
+  setDestinationPosition() async {
+    if (destinationAddress.isNotEmpty) {
+      List<Placemark> placeMarkList =
+          await geolocator.placemarkFromAddress(destinationAddress);
 
-      if (initialLocation == null) {
-        initialLocation = LatLng(_currentLatitude, _currentLongitude);
+      if (placeMarkList.length > 0) {
+        Placemark placeMark = placeMarkList.first;
+        destinationPosition = placeMark.position;
       }
+    }
+  }
 
-      if (originAddress.isEmpty) {}
-    });
-  }*/
-
-/*  @action
-  setPolylinesWithLocation({@required LatLng destination}) async {
+  @action
+  setPolylinesCurrentToDestination(
+      {@required LatLng currentLocation,
+      @required LatLng destination,
+      @required Color color}) async {
     if (initialLocation != null) {
       try {
         polylineStatus = PolylineStatus.LOADING;
         await _googleMapPolylineRepository.setPolylinesWithLocation(
-          origin: initialLocation, //TODO- Get from field
+          origin: currentLocation,
           destination: destination,
+          polylineId: 'currentToDestination',
+          color: color,
         );
 
         polylines = _googleMapPolylineRepository.getPolylines.values;
@@ -127,15 +164,21 @@ abstract class _PickController with Store {
         polylineStatus = PolylineStatus.ERROR;
       }
     }
-  }*/
+  }
 
   @action
-  setPolylinesWithAddress({@required String origin, @required String destination}) async {
+  setPolylinesOriginToDestination({
+    @required String origin,
+    @required String destination,
+    @required Color color,
+  }) async {
     try {
       polylineStatus = PolylineStatus.LOADING;
       await _googleMapPolylineRepository.setPolylinesWithAddress(
         origin: origin,
         destination: destination,
+        polylineId: 'originToDestination',
+        color: color,
       );
 
       polylines = _googleMapPolylineRepository.getPolylines.values;
@@ -146,6 +189,6 @@ abstract class _PickController with Store {
   }
 
   void dispose() {
-    //BackgroundLocation.stopLocationService();
+    positionStream.cancel();
   }
 }

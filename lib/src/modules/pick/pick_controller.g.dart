@@ -9,6 +9,13 @@ part of 'pick_controller.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$PickController on _PickController, Store {
+  Computed<bool> _$hasOriginAndDestinationComputed;
+
+  @override
+  bool get hasOriginAndDestination => (_$hasOriginAndDestinationComputed ??=
+          Computed<bool>(() => super.hasOriginAndDestination))
+      .value;
+
   final _$initialLocationAtom = Atom(name: '_PickController.initialLocation');
 
   @override
@@ -113,6 +120,26 @@ mixin _$PickController on _PickController, Store {
     }, _$currentPositionAtom, name: '${_$currentPositionAtom.name}_set');
   }
 
+  final _$destinationPositionAtom =
+      Atom(name: '_PickController.destinationPosition');
+
+  @override
+  Position get destinationPosition {
+    _$destinationPositionAtom.context
+        .enforceReadPolicy(_$destinationPositionAtom);
+    _$destinationPositionAtom.reportObserved();
+    return super.destinationPosition;
+  }
+
+  @override
+  set destinationPosition(Position value) {
+    _$destinationPositionAtom.context.conditionallyRunInAction(() {
+      super.destinationPosition = value;
+      _$destinationPositionAtom.reportChanged();
+    }, _$destinationPositionAtom,
+        name: '${_$destinationPositionAtom.name}_set');
+  }
+
   final _$placesDetailsAtom = Atom(name: '_PickController.placesDetails');
 
   @override
@@ -146,26 +173,64 @@ mixin _$PickController on _PickController, Store {
         .run(() => super.setCurrentPosition());
   }
 
-  final _$setAddressByLocationAsyncAction = AsyncAction('setAddressByLocation');
+  final _$setAddressByCurrentLocationAsyncAction =
+      AsyncAction('setAddressByCurrentLocation');
 
   @override
-  Future setAddressByLocation() {
-    return _$setAddressByLocationAsyncAction
-        .run(() => super.setAddressByLocation());
+  Future setAddressByCurrentLocation() {
+    return _$setAddressByCurrentLocationAsyncAction
+        .run(() => super.setAddressByCurrentLocation());
   }
 
-  final _$setPolylinesWithAddressAsyncAction =
-      AsyncAction('setPolylinesWithAddress');
+  final _$setDestinationPositionAsyncAction =
+      AsyncAction('setDestinationPosition');
 
   @override
-  Future setPolylinesWithAddress(
-      {@required String origin, @required String destination}) {
-    return _$setPolylinesWithAddressAsyncAction.run(() => super
-        .setPolylinesWithAddress(origin: origin, destination: destination));
+  Future setDestinationPosition() {
+    return _$setDestinationPositionAsyncAction
+        .run(() => super.setDestinationPosition());
+  }
+
+  final _$setPolylinesCurrentToDestinationAsyncAction =
+      AsyncAction('setPolylinesCurrentToDestination');
+
+  @override
+  Future setPolylinesCurrentToDestination(
+      {@required LatLng currentLocation,
+      @required LatLng destination,
+      @required Color color}) {
+    return _$setPolylinesCurrentToDestinationAsyncAction.run(() => super
+        .setPolylinesCurrentToDestination(
+            currentLocation: currentLocation,
+            destination: destination,
+            color: color));
+  }
+
+  final _$setPolylinesOriginToDestinationAsyncAction =
+      AsyncAction('setPolylinesOriginToDestination');
+
+  @override
+  Future setPolylinesOriginToDestination(
+      {@required String origin,
+      @required String destination,
+      @required Color color}) {
+    return _$setPolylinesOriginToDestinationAsyncAction.run(() => super
+        .setPolylinesOriginToDestination(
+            origin: origin, destination: destination, color: color));
   }
 
   final _$_PickControllerActionController =
       ActionController(name: '_PickController');
+
+  @override
+  dynamic startCurrentLocationUpdates() {
+    final _$actionInfo = _$_PickControllerActionController.startAction();
+    try {
+      return super.startCurrentLocationUpdates();
+    } finally {
+      _$_PickControllerActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   dynamic setOriginAddress(String origin) {

@@ -36,13 +36,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.4.0"
-  background_location:
-    dependency: "direct main"
-    description:
-      name: background_location
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.9+1"
   boolean_selector:
     dependency: transitive
     description:
@@ -415,13 +408,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0+1"
-  permission_handler:
-    dependency: transitive
-    description:
-      name: permission_handler
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "4.2.0+hotfix.2"
   petitparser:
     dependency: transitive
     description:

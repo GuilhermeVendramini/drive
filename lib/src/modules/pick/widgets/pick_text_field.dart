@@ -5,19 +5,23 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:provider/provider.dart';
 
-enum PickType {ORIGIN, DESTINATION}
+enum PickType { ORIGIN, DESTINATION }
 
-class CustomPickTextField extends StatelessWidget {
-
+class PickTextField extends StatefulWidget {
   final String label;
   final TextEditingController textController;
   final PickType pickType;
 
-  CustomPickTextField({this.textController, @required this.label, @required this.pickType});
+  PickTextField(
+      {this.textController, @required this.label, @required this.pickType});
 
   @override
-  Widget build(BuildContext context) {
+  _PickTextFieldState createState() => _PickTextFieldState();
+}
 
+class _PickTextFieldState extends State<PickTextField> {
+  @override
+  Widget build(BuildContext context) {
     final _controller = Provider.of<PickController>(context);
 
     Future<void> _onTap() async {
@@ -29,23 +33,26 @@ class CustomPickTextField extends StatelessWidget {
         components: [Component(Component.country, "br")],
       );
 
-      if(prediction != null) {
+      if (prediction != null) {
         await _controller.setDetailsByPlaceId(prediction.placeId);
-        textController.text =  _controller.getPlaceFormattedAddress;
 
-        if (pickType == PickType.ORIGIN) {
-          _controller.setOriginAddress(textController.text);
+        setState(() {
+          widget.textController.text = _controller.getPlaceFormattedAddress;
+        });
+
+        if (widget.pickType == PickType.ORIGIN) {
+          _controller.setOriginAddress(widget.textController.text);
         } else {
-          _controller.setDestinationAddress(textController.text);
+          _controller.setDestinationAddress(widget.textController.text);
         }
       }
     }
 
     return TextField(
-      controller: textController,
+      controller: widget.textController,
       onTap: _onTap,
       decoration: InputDecoration(
-        labelText: label,
+        labelText: widget.label,
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:drive/src/modules/pick/pick_controller.dart';
-import 'package:drive/src/modules/pick/widgets/custom_pick_text_field.dart';
+import 'package:drive/src/modules/pick/widgets/pick_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
@@ -15,10 +15,12 @@ class PickOriginDestination extends StatelessWidget {
     _destinationController.text = _controller.destinationAddress;
 
     void _setPolylinesWithAddress() {
-      _controller.setPolylinesWithAddress(
+      _controller.setPolylinesOriginToDestination(
         origin: _originController.text,
         destination: _destinationController.text,
+        color: Colors.blue,
       );
+      Navigator.pop(context);
     }
 
     return Container(
@@ -27,19 +29,19 @@ class PickOriginDestination extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          CustomPickTextField(
+          PickTextField(
             textController: _originController,
             label: 'Origin',
             pickType: PickType.ORIGIN,
           ),
-          CustomPickTextField(
+          PickTextField(
             textController: _destinationController,
             label: 'Destination',
             pickType: PickType.DESTINATION,
           ),
           Observer(builder: (_) {
             Function _action = _controller.originAddress.isNotEmpty &&
-                _controller.destinationAddress.isNotEmpty
+                    _controller.destinationAddress.isNotEmpty
                 ? _setPolylinesWithAddress
                 : null;
 

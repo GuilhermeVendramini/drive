@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 class CoreWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     final _i18nController = Provider.of<I18nController>(context);
     Locale _locale = Localizations.localeOf(context);
 

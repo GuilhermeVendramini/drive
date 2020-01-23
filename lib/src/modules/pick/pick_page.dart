@@ -1,5 +1,5 @@
 import 'package:drive/src/modules/pick/pick_controller.dart';
-import 'package:drive/src/modules/pick/widgets/pick_bottom_sheet.dart';
+import 'package:drive/src/modules/pick/widgets/pick_buttons_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -103,7 +103,6 @@ class _PickPageState extends State<PickPage> {
 */
 
 class PickPage extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     final _controller = Provider.of<PickController>(context);
@@ -143,7 +142,7 @@ class PickPage extends StatelessWidget {
           },
         ),
       ),
-      floatingActionButton: PickBottomSheet(),
+      floatingActionButton: PickButtonsBox(),
     );
   }
 }
