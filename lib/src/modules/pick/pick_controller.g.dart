@@ -157,6 +157,32 @@ mixin _$PickController on _PickController, Store {
     }, _$placesDetailsAtom, name: '${_$placesDetailsAtom.name}_set');
   }
 
+  final _$_markersAtom = Atom(name: '_PickController._markers');
+
+  @override
+  List<Marker> get _markers {
+    _$_markersAtom.context.enforceReadPolicy(_$_markersAtom);
+    _$_markersAtom.reportObserved();
+    return super._markers;
+  }
+
+  @override
+  set _markers(List<Marker> value) {
+    _$_markersAtom.context.conditionallyRunInAction(() {
+      super._markers = value;
+      _$_markersAtom.reportChanged();
+    }, _$_markersAtom, name: '${_$_markersAtom.name}_set');
+  }
+
+  final _$startCurrentLocationUpdatesAsyncAction =
+      AsyncAction('startCurrentLocationUpdates');
+
+  @override
+  Future startCurrentLocationUpdates() {
+    return _$startCurrentLocationUpdatesAsyncAction
+        .run(() => super.startCurrentLocationUpdates());
+  }
+
   final _$setDetailsByPlaceIdAsyncAction = AsyncAction('setDetailsByPlaceId');
 
   @override
@@ -223,16 +249,6 @@ mixin _$PickController on _PickController, Store {
       ActionController(name: '_PickController');
 
   @override
-  dynamic startCurrentLocationUpdates() {
-    final _$actionInfo = _$_PickControllerActionController.startAction();
-    try {
-      return super.startCurrentLocationUpdates();
-    } finally {
-      _$_PickControllerActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   dynamic setOriginAddress(String origin) {
     final _$actionInfo = _$_PickControllerActionController.startAction();
     try {
@@ -247,6 +263,19 @@ mixin _$PickController on _PickController, Store {
     final _$actionInfo = _$_PickControllerActionController.startAction();
     try {
       return super.setDestinationAddress(destination);
+    } finally {
+      _$_PickControllerActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setMarker(
+      {@required LatLng position,
+      @required String id,
+      BitmapDescriptor icon = BitmapDescriptor.defaultMarker}) {
+    final _$actionInfo = _$_PickControllerActionController.startAction();
+    try {
+      return super.setMarker(position: position, id: id, icon: icon);
     } finally {
       _$_PickControllerActionController.endAction(_$actionInfo);
     }

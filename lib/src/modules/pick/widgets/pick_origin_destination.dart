@@ -18,12 +18,20 @@ class PickOriginDestination extends StatelessWidget {
       _controller.setPolylinesOriginToDestination(
         origin: _originController.text,
         destination: _destinationController.text,
-        color: Colors.blue,
+        color: Colors.blueGrey,
       );
       Navigator.pop(context);
     }
 
     return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        border: Border(
+          top: BorderSide(
+            color: Colors.white,
+          ),
+        ),
+      ),
       padding: EdgeInsets.all(10.0),
       height: 250,
       child: Column(

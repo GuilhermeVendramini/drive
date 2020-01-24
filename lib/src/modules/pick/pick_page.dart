@@ -123,6 +123,7 @@ class PickPage extends StatelessWidget {
               return Stack(
                 children: <Widget>[
                   GoogleMap(
+                    markers: _controller.getMarkers,
                     polylines: _controller.polylines != null
                         ? Set<Polyline>.of(_controller.polylines)
                         : null,

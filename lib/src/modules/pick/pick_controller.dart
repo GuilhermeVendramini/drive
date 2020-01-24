@@ -18,6 +18,13 @@ class PickController = _PickController with _$PickController;
 abstract class _PickController with Store {
   _PickController() {
     setCurrentPosition();
+
+    BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(),
+      'assets/images/pin.png',
+    ).then((onValue) {
+      _bitmapIcon = onValue;
+    });
   }
 
   GoogleMapPolylineRepository _googleMapPolylineRepository =
@@ -53,6 +60,11 @@ abstract class _PickController with Store {
 
   StreamSubscription<Position> positionStream;
 
+  @observable
+  List<Marker> _markers = [];
+
+  BitmapDescriptor _bitmapIcon;
+
   @computed
   bool get hasOriginAndDestination =>
       originAddress.isNotEmpty && destinationAddress.isNotEmpty;
@@ -75,6 +87,15 @@ abstract class _PickController with Store {
             currentLocation: LatLng(position.latitude, position.longitude),
             destination: LatLng(
                 destinationPosition.latitude, destinationPosition.longitude),
+          );
+
+          setMarker(
+            position: LatLng(
+              position.latitude,
+              position.longitude,
+            ),
+            id: 'currentLocation',
+            icon: _bitmapIcon,
           );
         }
       });
@@ -139,6 +160,15 @@ abstract class _PickController with Store {
       if (placeMarkList.length > 0) {
         Placemark placeMark = placeMarkList.first;
         destinationPosition = placeMark.position;
+
+        setMarker(
+          position: LatLng(
+            placeMark.position.latitude,
+            placeMark.position.longitude,
+          ),
+          id: 'destinationPosition',
+          icon: BitmapDescriptor.defaultMarkerWithHue(270.0),
+        );
       }
     }
   }
@@ -186,6 +216,23 @@ abstract class _PickController with Store {
     } catch (_) {
       polylineStatus = PolylineStatus.ERROR;
     }
+  }
+
+  @action
+  void setMarker({
+    @required LatLng position,
+    @required String id,
+    BitmapDescriptor icon = BitmapDescriptor.defaultMarker,
+  }) {
+    _markers.add(Marker(
+      markerId: MarkerId(id),
+      position: position,
+      icon: icon,
+    ));
+  }
+
+  Set<Marker> get getMarkers {
+    return _markers.toSet();
   }
 
   void dispose() {

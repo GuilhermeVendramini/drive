@@ -12,7 +12,9 @@ class PickButtonSheet extends StatelessWidget {
       child: Icon(Icons.map),
       onPressed: () {
         var bottomSheetController = showBottomSheet(
-            context: context, builder: (context) => PickOriginDestination());
+          context: context,
+          builder: (context) => PickOriginDestination(),
+        );
         action(false);
         bottomSheetController.closed.then((value) {
           action(true);
