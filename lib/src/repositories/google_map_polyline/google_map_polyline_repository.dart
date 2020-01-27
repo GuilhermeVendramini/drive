@@ -24,7 +24,6 @@ class GoogleMapPolylineRepository {
         mode: RouteMode.driving,
       );
 
-      _polyLines.remove(_polyLines[polylineId]);
       return _addPolyline(
         coordinates: coordinates,
         polylineId: polylineId,
@@ -48,7 +47,6 @@ class GoogleMapPolylineRepository {
               destination: destination,
               mode: RouteMode.driving);
 
-      _polyLines.remove(_polyLines[polylineId]);
       return _addPolyline(
           coordinates: coordinates, polylineId: polylineId, color: color);
     } catch (e) {
@@ -58,6 +56,10 @@ class GoogleMapPolylineRepository {
 
   Map<PolylineId, Polyline> get getPolylines {
     return _polyLines;
+  }
+
+  void removePolyline({@required String polylineId}) {
+    _polyLines.removeWhere((_, polyline) => polyline.polylineId == PolylineId(polylineId));
   }
 
   Map<PolylineId, Polyline> _addPolyline({

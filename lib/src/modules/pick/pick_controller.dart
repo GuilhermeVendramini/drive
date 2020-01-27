@@ -17,6 +17,7 @@ class PickController = _PickController with _$PickController;
 
 abstract class _PickController with Store {
   _PickController() {
+    verifyLocationService();
     setCurrentPosition();
 
     BitmapDescriptor.fromAssetImage(
@@ -33,7 +34,7 @@ abstract class _PickController with Store {
   GoogleMapsPlaces _googleMapsPlaces = GoogleMapsPlaces(apiKey: googleMapKey);
 
   @observable
-  LatLng initialLocation;
+  LatLng targetLocation;
 
   @observable
   String originAddress = '';
@@ -56,6 +57,9 @@ abstract class _PickController with Store {
   @observable
   PlacesDetailsResponse placesDetails;
 
+  @observable
+  bool isLocationEnabled = false;
+
   Geolocator geolocator = Geolocator();
 
   StreamSubscription<Position> positionStream;
@@ -65,9 +69,20 @@ abstract class _PickController with Store {
 
   BitmapDescriptor _bitmapIcon;
 
+  GoogleMapController mapController;
+
   @computed
   bool get hasOriginAndDestination =>
       originAddress.isNotEmpty && destinationAddress.isNotEmpty;
+
+  void onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  void cameraUpdate(LatLngBounds bounds) {
+    CameraUpdate _cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 100);
+    mapController.animateCamera(_cameraUpdate);
+  }
 
   @action
   startCurrentLocationUpdates() async {
@@ -76,27 +91,46 @@ abstract class _PickController with Store {
         LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
 
     if (destinationPosition != null) {
+      LatLng _currentLocation =
+          LatLng(currentPosition.latitude, currentPosition.longitude);
+
+      setPolylinesCurrentToDestination(
+        color: Color(0xFF000000),
+        currentLocation: _currentLocation,
+        destination:
+            LatLng(destinationPosition.latitude, destinationPosition.longitude),
+      );
+
+      setMarker(
+        position: _currentLocation,
+        id: 'currentLocation',
+        icon: _bitmapIcon,
+      );
+
       positionStream = geolocator
           .getPositionStream(locationOptions)
           .listen((Position position) {
         if (position != null) {
           currentPosition = position;
-          print(position);
+          _currentLocation = LatLng(position.latitude, position.longitude);
           setPolylinesCurrentToDestination(
             color: Color(0xFF000000),
-            currentLocation: LatLng(position.latitude, position.longitude),
+            currentLocation: _currentLocation,
             destination: LatLng(
                 destinationPosition.latitude, destinationPosition.longitude),
           );
 
           setMarker(
-            position: LatLng(
-              position.latitude,
-              position.longitude,
-            ),
+            position: _currentLocation,
             id: 'currentLocation',
             icon: _bitmapIcon,
           );
+
+          targetLocation = _currentLocation;
+
+          LatLngBounds _bounds = LatLngBounds(
+              southwest: targetLocation, northeast: targetLocation);
+          cameraUpdate(_bounds);
         }
       });
     }
@@ -117,13 +151,18 @@ abstract class _PickController with Store {
   }
 
   @action
+  verifyLocationService() async {
+    isLocationEnabled = await geolocator.isLocationServiceEnabled();
+  }
+
+  @action
   setCurrentPosition() async {
     currentPosition = await geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
 
-    if (initialLocation == null) {
-      initialLocation =
+    if (targetLocation == null) {
+      targetLocation =
           LatLng(currentPosition.latitude, currentPosition.longitude);
       setAddressByCurrentLocation();
     }
@@ -132,7 +171,7 @@ abstract class _PickController with Store {
   @action
   setAddressByCurrentLocation() async {
     List<Placemark> placeMarkList = await geolocator.placemarkFromCoordinates(
-        initialLocation.latitude, initialLocation.longitude);
+        targetLocation.latitude, targetLocation.longitude);
 
     if (placeMarkList.length > 0) {
       Placemark placeMark = placeMarkList.first;
@@ -169,6 +208,9 @@ abstract class _PickController with Store {
           id: 'destinationPosition',
           icon: BitmapDescriptor.defaultMarkerWithHue(270.0),
         );
+        LatLngBounds _bounds =
+            LatLngBounds(southwest: targetLocation, northeast: targetLocation);
+        cameraUpdate(_bounds);
       }
     }
   }
@@ -178,7 +220,7 @@ abstract class _PickController with Store {
       {@required LatLng currentLocation,
       @required LatLng destination,
       @required Color color}) async {
-    if (initialLocation != null) {
+    if (targetLocation != null) {
       try {
         polylineStatus = PolylineStatus.LOADING;
         await _googleMapPolylineRepository.setPolylinesWithLocation(
@@ -204,6 +246,9 @@ abstract class _PickController with Store {
   }) async {
     try {
       polylineStatus = PolylineStatus.LOADING;
+      _markers.clear();
+      _googleMapPolylineRepository.removePolyline(
+          polylineId: 'currentToDestination');
       await _googleMapPolylineRepository.setPolylinesWithAddress(
         origin: origin,
         destination: destination,

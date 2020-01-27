@@ -16,21 +16,21 @@ mixin _$PickController on _PickController, Store {
           Computed<bool>(() => super.hasOriginAndDestination))
       .value;
 
-  final _$initialLocationAtom = Atom(name: '_PickController.initialLocation');
+  final _$targetLocationAtom = Atom(name: '_PickController.targetLocation');
 
   @override
-  LatLng get initialLocation {
-    _$initialLocationAtom.context.enforceReadPolicy(_$initialLocationAtom);
-    _$initialLocationAtom.reportObserved();
-    return super.initialLocation;
+  LatLng get targetLocation {
+    _$targetLocationAtom.context.enforceReadPolicy(_$targetLocationAtom);
+    _$targetLocationAtom.reportObserved();
+    return super.targetLocation;
   }
 
   @override
-  set initialLocation(LatLng value) {
-    _$initialLocationAtom.context.conditionallyRunInAction(() {
-      super.initialLocation = value;
-      _$initialLocationAtom.reportChanged();
-    }, _$initialLocationAtom, name: '${_$initialLocationAtom.name}_set');
+  set targetLocation(LatLng value) {
+    _$targetLocationAtom.context.conditionallyRunInAction(() {
+      super.targetLocation = value;
+      _$targetLocationAtom.reportChanged();
+    }, _$targetLocationAtom, name: '${_$targetLocationAtom.name}_set');
   }
 
   final _$originAddressAtom = Atom(name: '_PickController.originAddress');
@@ -157,6 +157,24 @@ mixin _$PickController on _PickController, Store {
     }, _$placesDetailsAtom, name: '${_$placesDetailsAtom.name}_set');
   }
 
+  final _$isLocationEnabledAtom =
+      Atom(name: '_PickController.isLocationEnabled');
+
+  @override
+  bool get isLocationEnabled {
+    _$isLocationEnabledAtom.context.enforceReadPolicy(_$isLocationEnabledAtom);
+    _$isLocationEnabledAtom.reportObserved();
+    return super.isLocationEnabled;
+  }
+
+  @override
+  set isLocationEnabled(bool value) {
+    _$isLocationEnabledAtom.context.conditionallyRunInAction(() {
+      super.isLocationEnabled = value;
+      _$isLocationEnabledAtom.reportChanged();
+    }, _$isLocationEnabledAtom, name: '${_$isLocationEnabledAtom.name}_set');
+  }
+
   final _$_markersAtom = Atom(name: '_PickController._markers');
 
   @override
@@ -189,6 +207,15 @@ mixin _$PickController on _PickController, Store {
   Future setDetailsByPlaceId(String placeId) {
     return _$setDetailsByPlaceIdAsyncAction
         .run(() => super.setDetailsByPlaceId(placeId));
+  }
+
+  final _$verifyLocationServiceAsyncAction =
+      AsyncAction('verifyLocationService');
+
+  @override
+  Future verifyLocationService() {
+    return _$verifyLocationServiceAsyncAction
+        .run(() => super.verifyLocationService());
   }
 
   final _$setCurrentPositionAsyncAction = AsyncAction('setCurrentPosition');
